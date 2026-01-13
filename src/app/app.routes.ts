@@ -9,6 +9,6 @@ export const routes: Routes = [
   { path: 'csr', component: CsrDashboardComponent },
   { path: 'ssg', component: SsgAboutComponent },
   { path: 'product/:id', component: ProductDetailComponent },
-  // { path: '', redirectTo: '/ssr', pathMatch: 'full' }, // Default page
-  // { path: '**', redirectTo: '/ssr' } // Fallback
+  { path: '', redirectTo: '/ssr', pathMatch: 'full' }, // Default page
+  { path: '**', redirectTo: '/ssr' } // Fallback
 ];

@@ -17,6 +17,25 @@ export class StateStorageService {
   }
 
   /**
+   * Parse cookie string to get value by name
+   * @param cookieString The cookie string to parse
+   * @param name The name of the cookie to retrieve
+   * @returns The cookie value or null if not found
+   */
+  private parseCookieValue(cookieString: string, name: string): string | null {
+    const nameEQ = name + '=';
+    const ca = cookieString.split(';');
+    for (let i = 0; i < ca.length; i++) {
+      let c = ca[i];
+      while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+      if (c.indexOf(nameEQ) === 0) {
+        return decodeURIComponent(c.substring(nameEQ.length, c.length));
+      }
+    }
+    return null;
+  }
+
+  /**
    * Get cookie value by name
    * Works in both browser (from document.cookie) and server (from incoming request headers)
    */
@@ -36,30 +55,14 @@ export class StateStorageService {
       }
 
       if (cookies) {
-        const nameEQ = name + '=';
-        const ca = cookies.split(';');
-        for (let i = 0; i < ca.length; i++) {
-          let c = ca[i];
-          while (c.charAt(0) === ' ') c = c.substring(1, c.length);
-          if (c.indexOf(nameEQ) === 0) {
-            return decodeURIComponent(c.substring(nameEQ.length, c.length));
-          }
-        }
+        return this.parseCookieValue(cookies, name);
       }
       return null;
     }
 
     // Browser: read from document.cookie
     if (this.isBrowser && this.document) {
-      const nameEQ = name + '=';
-      const ca = this.document.cookie.split(';');
-      for (let i = 0; i < ca.length; i++) {
-        let c = ca[i];
-        while (c.charAt(0) === ' ') c = c.substring(1, c.length);
-        if (c.indexOf(nameEQ) === 0) {
-          return decodeURIComponent(c.substring(nameEQ.length, c.length));
-        }
-      }
+      return this.parseCookieValue(this.document.cookie, name);
     }
     return null;
   }

@@ -1,0 +1,201 @@
+.login-container {
+  min-height: calc(100vh - 200px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+  .login-card {
+    width: 100%;
+    max-width: 450px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    padding: 3rem 2.5rem;
+    animation: fadeInUp 0.5s ease-out;
+
+    h1 {
+      text-align: center;
+      color: #333;
+      font-size: 2rem;
+      font-weight: 600;
+      margin-bottom: 2rem;
+      letter-spacing: -0.5px;
+    }
+
+    .alert {
+      border-radius: 8px;
+      border: none;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      animation: shake 0.5s ease-in-out;
+
+      &.alert-danger {
+        background-color: #fee;
+        color: #c33;
+        border-left: 4px solid #c33;
+      }
+    }
+
+    .form {
+      .mb-3 {
+        margin-bottom: 1.5rem;
+
+        label {
+          display: block;
+          margin-bottom: 0.5rem;
+          color: #555;
+          font-weight: 500;
+          font-size: 0.95rem;
+        }
+
+        .form-control {
+          width: 100%;
+          padding: 0.75rem 1rem;
+          font-size: 1rem;
+          border: 2px solid #e0e0e0;
+          border-radius: 8px;
+          transition: all 0.3s ease;
+          background-color: #fafafa;
+
+          &:focus {
+            outline: none;
+            border-color: #667eea;
+            background-color: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+          }
+
+          &::placeholder {
+            color: #999;
+          }
+        }
+      }
+
+      .form-check {
+        margin-bottom: 1.5rem;
+
+        .form-check-label {
+          display: flex;
+          align-items: center;
+          cursor: pointer;
+          color: #555;
+          font-size: 0.95rem;
+          user-select: none;
+
+          .form-check-input {
+            width: 18px;
+            height: 18px;
+            margin-right: 0.75rem;
+            cursor: pointer;
+            accent-color: #667eea;
+            border: 2px solid #e0e0e0;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+
+            &:checked {
+              border-color: #667eea;
+            }
+
+            &:focus {
+              outline: none;
+              box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            }
+          }
+
+          span {
+            flex: 1;
+          }
+        }
+      }
+
+      .btn-primary {
+        width: 100%;
+        padding: 0.875rem 1.5rem;
+        font-size: 1rem;
+        font-weight: 600;
+        color: white;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        &:active {
+          transform: translateY(0);
+          box-shadow: 0 2px 10px rgba(102, 126, 234, 0.4);
+        }
+
+        &:focus {
+          outline: none;
+          box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
+        }
+
+        &:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+          transform: none;
+        }
+      }
+    }
+  }
+}
+
+// Animations
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  10%, 30%, 50%, 70%, 90% {
+    transform: translateX(-10px);
+  }
+  20%, 40%, 60%, 80% {
+    transform: translateX(10px);
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .login-container {
+    padding: 1rem;
+
+    .login-card {
+      padding: 2rem 1.5rem;
+      border-radius: 12px;
+
+      h1 {
+        font-size: 1.75rem;
+        margin-bottom: 1.5rem;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .login-container {
+    .login-card {
+      padding: 1.5rem 1rem;
+
+      h1 {
+        font-size: 1.5rem;
+      }
+    }
+  }
+}

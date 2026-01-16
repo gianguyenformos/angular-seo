@@ -1,0 +1,56 @@
+<div class="login-container">
+  <div class="login-card">
+    <h1>Sign in</h1>
+    @if (authenticationError()) {
+      <div class="alert alert-danger">
+        <strong>Failed to sign in!</strong> Please check your credentials and try again.
+      </div>
+    }
+    <form class="form" (ngSubmit)="login()" [formGroup]="loginForm">
+      <div class="mb-3">
+        <label for="username">Username</label>
+        <input
+          type="text"
+          class="form-control"
+          [class.is-invalid]="isFieldInvalid('username')"
+          name="username"
+          id="username"
+          placeholder="Username"
+          formControlName="username"
+        />
+        @if (isFieldInvalid('username')) {
+          <div class="invalid-feedback">
+            {{ getFieldError('username') }}
+          </div>
+        }
+      </div>
+
+      <div class="mb-3">
+        <label for="password">Password</label>
+        <input
+          type="password"
+          class="form-control"
+          [class.is-invalid]="isFieldInvalid('password')"
+          name="password"
+          id="password"
+          placeholder="Password"
+          formControlName="password"
+        />
+        @if (isFieldInvalid('password')) {
+          <div class="invalid-feedback">
+            {{ getFieldError('password') }}
+          </div>
+        }
+      </div>
+
+      <div class="form-check">
+        <label class="form-check-label" for="rememberMe">
+          <input class="form-check-input" type="checkbox" name="rememberMe" id="rememberMe" formControlName="rememberMe" />
+          <span>Remember me</span>
+        </label>
+      </div>
+
+      <button type="submit" class="btn btn-primary">Sign in</button>
+    </form>
+  </div>
+</div>

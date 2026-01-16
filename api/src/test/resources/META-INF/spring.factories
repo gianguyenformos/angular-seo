@@ -1,0 +1,2 @@
+org.springframework.test.context.ContextCustomizerFactory = \
+    com.formos.api.config.SqlTestContainersSpringContextCustomizerFactory

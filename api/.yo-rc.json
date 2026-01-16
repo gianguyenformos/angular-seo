@@ -1,0 +1,32 @@
+{
+  "generator-jhipster": {
+    "applicationType": "monolith",
+    "authenticationType": "jwt",
+    "baseName": "api",
+    "buildTool": "gradle",
+    "cacheProvider": "ehcache",
+    "creationTimestamp": 1768366693522,
+    "databaseType": "sql",
+    "devDatabaseType": "mysql",
+    "enableGradleEnterprise": false,
+    "enableHibernateCache": true,
+    "enableTranslation": true,
+    "entities": [],
+    "feignClient": null,
+    "gradleEnterpriseHost": null,
+    "jhipsterVersion": "8.11.0",
+    "jwtSecretKey": "MjJmNTVkZDVkZjZkNjM2NDA1M2YwODc0YjExYjNmZWM0Yzc4ODA4ZDc3NTk5NDFlYzBjODExODk4Y2ZjODQ3OGVhYzBlNjYyZjg3YzcwZmI4NmNhMmVhNmE2MThiOTJmMWVkNzE5NDdhMzNlM2E3ZjUyZjI4MTlhMjcyYWFhZmE=",
+    "languages": ["en"],
+    "monorepository": true,
+    "nativeLanguage": "en",
+    "packageName": "com.formos.api",
+    "prodDatabaseType": "mysql",
+    "reactive": false,
+    "serverPort": null,
+    "serviceDiscoveryType": null,
+    "skipClient": true,
+    "skipCommitHook": true,
+    "syncUserWithIdp": null,
+    "testFrameworks": []
+  }
+}

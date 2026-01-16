@@ -1,9 +1,4 @@
 import { Routes, ResolveFn } from '@angular/router';
-import { SsrStockComponent } from './pages/ssr-stock/ssr-stock.component';
-import { CsrDashboardComponent } from './pages/csr-dashboard/csr-dashboard.component';
-import { SsgAboutComponent } from './pages/ssg-about/ssg-about.component';
-import { ProductDetailComponent } from './pages/product-detail/product-detail.component';
-import LoginComponent from './pages/login/login.component';
 import { inject } from '@angular/core';
 import { Account } from './core/auth/account.model';
 import { AccountService } from './core/auth/account.service';
@@ -15,19 +10,29 @@ export const profileLoader: ResolveFn<Account | null> = (route, state) => {
 };
 
 export const routes: Routes = [
-  { path: 'login', component: LoginComponent },
+  {
+    path: 'login',
+    loadComponent: () => import('./pages/login/login.component').then(m => m.LoginComponent)
+  },
   {
     path: 'ssr',
-    component: SsrStockComponent,
+    loadComponent: () => import('./pages/ssr-stock/ssr-stock.component').then(m => m.SsrStockComponent),
+    canActivate: [UserRouteAccessService],
     resolve: { profile: profileLoader },
+  },
+  {
+    path: 'csr',
+    loadComponent: () => import('./pages/csr-dashboard/csr-dashboard.component').then(m => m.CsrDashboardComponent),
     canActivate: [UserRouteAccessService],
   },
-  { path: 'csr', component: CsrDashboardComponent, canActivate: [UserRouteAccessService], },
-  { path: 'ssg', component: SsgAboutComponent },
+  {
+    path: 'ssg',
+    loadComponent: () => import('./pages/ssg-about/ssg-about.component').then(m => m.SsgAboutComponent)
+  },
   { path: 'product/:id',
-    component: ProductDetailComponent,
-    resolve: { profile: profileLoader },
+    loadComponent: () => import('./pages/product-detail/product-detail.component').then(m => m.ProductDetailComponent),
     canActivate: [UserRouteAccessService],
+    resolve: { profile: profileLoader },
   },
   { path: '', redirectTo: '/login', pathMatch: 'full' }, // Default page
   { path: '**', redirectTo: '/login' } // Fallback

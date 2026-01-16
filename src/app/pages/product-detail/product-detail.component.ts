@@ -1,8 +1,9 @@
-import { Component, inject, input, OnInit, OnDestroy, signal } from '@angular/core';
+import { Component, inject, input, OnInit, OnDestroy, signal, TransferState, PLATFORM_ID, makeStateKey } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { Account } from '../../core/auth/account.model';
 import { ActivatedRoute } from '@angular/router';
 import { SeoService } from '../../shared/seo.service';
+import { isPlatformBrowser } from '@angular/common';
 
 @Component({
   selector: 'app-product-detail',
@@ -36,6 +37,9 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
 
   private readonly route = inject(ActivatedRoute);
   private readonly seoService = inject(SeoService);
+  private readonly transfer = inject(TransferState);
+  private readonly platformId = inject(PLATFORM_ID);
+
   private routeParamsSubscription?: Subscription;
 
   account: Account | null = null;
@@ -71,15 +75,30 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   }
 
   private loadProductData(productId: string): void {
-    // Simulate fetching data based on the ID
-    // Since this is SSG, this logic runs DURING the build command
-    this.productData.set({
-      name: `Premium Gadget ${productId}`,
-      description: `This is a high-quality description for product #${productId}.`
-    });
+    const product = this.getProductData(productId);
+    this.productData.set(product);
 
     this.seoService.setTitle(`${this.productData().name} — Buy Online`);
     this.seoService.setMeta(this.productData().description);
     this.seoService.setCanonical(`http://localhost:4200/product/${productId}`);
+  }
+
+  private getProductData(productId: string): any {
+    const key = makeStateKey<any>('PRODUCT-' + productId);
+
+    if (isPlatformBrowser(this.platformId) && this.transfer.hasKey(key)) {
+      return this.transfer.get(key, null as any);
+    }
+
+    // Simulate fetching data based on the ID
+    // Since this is SSG, this logic runs DURING the build command
+    const productData = {
+      name: `Premium Gadget ${productId}`,
+      description: `This is a high-quality description for product #${productId}.`
+    };
+
+    this.transfer.set(key, productData);
+
+    return productData;
   }
 }

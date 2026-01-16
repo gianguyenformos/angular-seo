@@ -12,7 +12,7 @@ import { AccountService } from '../../core/auth/account.service';
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
 })
-export default class LoginComponent implements OnInit, AfterViewInit {
+export class LoginComponent implements OnInit, AfterViewInit {
   username = viewChild.required<ElementRef>('username');
 
   authenticationError = signal(false);

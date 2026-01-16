@@ -1,8 +1,8 @@
-import { Component, inject, input, OnInit, OnDestroy, signal, effect } from '@angular/core';
-import { firstValueFrom, Subscription } from 'rxjs';
+import { Component, inject, input, OnInit, OnDestroy, signal } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { Account } from '../../core/auth/account.model';
-import { AccountService } from '../../core/auth/account.service';
 import { ActivatedRoute } from '@angular/router';
+import { SeoService } from '../../shared/seo.service';
 
 @Component({
   selector: 'app-product-detail',
@@ -35,6 +35,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   productData = signal<any>(null);
 
   private readonly route = inject(ActivatedRoute);
+  private readonly seoService = inject(SeoService);
   private routeParamsSubscription?: Subscription;
 
   account: Account | null = null;
@@ -44,15 +45,6 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
     // Resolver completes before component creation during SSR
     const profileData = this.route.snapshot.data['profile'];
     this.account = (profileData as Account | null) || null;
-
-    // Watch for changes to the id signal and reload data when it changes
-    // This handles navigation between different product IDs
-    effect(() => {
-      const productId = this.id();
-      if (productId) {
-        this.loadProductData(productId);
-      }
-    });
   }
 
   ngOnInit(): void {
@@ -61,16 +53,10 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
       this.account = (this.route.snapshot.data['profile'] as Account | null) || null;
     }
 
-    // Load initial product data from route params
-    const initialId = this.route.snapshot.params['id'] || this.id();
-    if (initialId) {
-      this.loadProductData(initialId);
-    }
-
     // Subscribe to route parameter changes to handle navigation between products
-    // This is the primary mechanism to detect route parameter changes
+    // This subscription fires immediately with current params, so no need for separate initial load
     this.routeParamsSubscription = this.route.params.subscribe(params => {
-      const routeId = params['id'];
+      const routeId = params['id'] || this.id();
       if (routeId) {
         this.loadProductData(routeId);
       }
@@ -91,5 +77,9 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
       name: `Premium Gadget ${productId}`,
       description: `This is a high-quality description for product #${productId}.`
     });
+
+    this.seoService.setTitle(`${this.productData().name} — Buy Online`);
+    this.seoService.setMeta(this.productData().description);
+    this.seoService.setCanonical(`http://localhost:4200/product/${productId}`);
   }
 }

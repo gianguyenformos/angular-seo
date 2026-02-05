@@ -1,13 +1,14 @@
 # Tiêu chuẩn mã nguồn Angular (Angular 21.x)
 
-Phạm vi: Ứng dụng frontend dùng **Angular 21.x**\
-Backend: REST / JSON (Spring Boot hoặc tương đương)
+**Phạm vi:** Ứng dụng frontend sử dụng **Angular 21.x**
+
+**Backend:** REST / JSON (Spring Boot hoặc tương đương)
 
 ---
 
 ## 1. Cấu trúc dự án
 
-**Quy tắc (Chuẩn mực):** Các nhóm **BẮT BUỘC** dùng kiến trúc phân lớp theo tính năng (feature-first). Mỗi tính năng sở hữu UI, state và truy cập dữ liệu của riêng mình.
+**Quy tắc (Chuẩn mực):** Các nhóm **BẮT BUỘC** sử dụng kiến trúc phân lớp theo tính năng (feature-first). Mỗi tính năng sở hữu UI, state và truy cập dữ liệu của riêng nó.
 
 ### ❌ SAI — Cấu trúc theo loại
 
@@ -20,7 +21,7 @@ models/
 #### Vì sao SAI
 
 - Không có quyền sở hữu rõ ràng theo tính năng
-- Ghép nối cao giữa các tính năng không liên quan
+- Liên kết chặt giữa các tính năng không liên quan
 - Khó xóa, tái cấu trúc hoặc mở rộng từng tính năng độc lập
 
 ### ✅ ĐÚNG — Cấu trúc theo tính năng
@@ -33,25 +34,25 @@ users/
   users.routes.ts
 ```
 
-#### Lợi ích của ĐÚNG
+#### Lợi ích của cách ĐÚNG
 
 - Quyền sở hữu rõ ràng theo từng tính năng
-- Hỗ trợ lazy loading và tái cấu trúc độc lập
-- Mở rộng tốt cho team lớn
+- Cho phép lazy loading và tái cấu trúc độc lập
+- Mở rộng tốt cho đội ngũ lớn
 
 ---
 
-## 2. Quản lý state (Chỉ dùng Angular Signals)
+## 2. Quản lý trạng thái (Chỉ dùng Angular Signals)
 
-**Quy tắc (Chuẩn mực):** Ứng dụng Angular **BẮT BUỘC dùng Angular Signals** (`signal`, `computed`, `effect`) để quản lý state.
+**Quy tắc (Chuẩn mực):** Ứng dụng Angular **BẮT BUỘC dùng Angular Signals** (`signal`, `computed`, `effect`) cho quản lý trạng thái.
 
 ---
 
-### 2.1 State của component
+### 2.1 Trạng thái component
 
-**Quy tắc (Chuẩn mực):** Component **CHỈ** quản lý state cục bộ, chỉ phục vụ hiển thị (công tắc UI, lựa chọn).
+**Quy tắc (Chuẩn mực):** Component **CHỈ** quản lý trạng thái cục bộ, chỉ phục vụ hiển thị (bật/tắt UI, lựa chọn).
 
-### ❌ SAI — Component nắm state nghiệp vụ
+### ❌ SAI — Component nắm trạng thái nghiệp vụ
 
 ```ts
 users = signal<User[]>([]);
@@ -64,7 +65,7 @@ ngOnInit() {
 
 - Component trộn lẫn UI và dữ liệu
 - Side-effect bất đồng bộ ẩn trong tầng UI
-- State bị hủy khi component bị teardown
+- Trạng thái bị hủy khi component bị teardown
 
 ### ✅ ĐÚNG — Component đọc từ Signals Store
 
@@ -72,7 +73,7 @@ ngOnInit() {
 users = this.usersStore.users;
 ```
 
-#### Lợi ích của ĐÚNG
+#### Lợi ích của cách ĐÚNG
 
 - Component không giữ state
 - Tách biệt rõ trách nhiệm
@@ -80,11 +81,11 @@ users = this.usersStore.users;
 
 ---
 
-### 2.2 Signals Store (State thuộc service)
+### 2.2 Signals Store (Trạng thái do Service sở hữu)
 
-**Quy tắc (Chuẩn mực):** State ứng dụng và dùng chung **BẮT BUỘC** nằm trong các service có thể inject, dùng Signals.
+**Quy tắc (Chuẩn mực):** Trạng thái ứng dụng và dùng chung **BẮT BUỘC** nằm trong service có thể inject, dùng Signals.
 
-### ❌ SAI — State dùng chung có thể thay đổi trong service
+### ❌ SAI — Trạng thái dùng chung có thể thay đổi
 
 ```ts
 @Injectable()
@@ -95,9 +96,9 @@ export class UserService {
 
 #### Vì sao SAI
 
-- State có thể thay đổi
+- Trạng thái có thể thay đổi
 - Không theo dõi thay đổi
-- Khó test
+- Khó kiểm thử
 
 ### ✅ ĐÚNG — Store Service dựa trên Signals
 
@@ -116,17 +117,17 @@ export class UsersStore {
 }
 ```
 
-#### Lợi ích của ĐÚNG
+#### Lợi ích của cách ĐÚNG
 
-- Một nguồn sự thật
-- Phản ứng theo kiểu Angular
+- Một nguồn sự thật duy nhất
+- Phản ứng theo kiểu Angular gốc
 - Dễ unit test
 
 ---
 
-### 2.3 State dẫn xuất với `computed`
+### 2.3 Trạng thái dẫn xuất với `computed`
 
-**Quy tắc (Chuẩn mực):** State dẫn xuất **BẮT BUỘC** khai báo bằng `computed()` trong store.
+**Quy tắc (Chuẩn mực):** Trạng thái dẫn xuất **BẮT BUỘC** khai báo bằng `computed()` trong store.
 
 ### ❌ SAI — Tính toán trong component
 
@@ -139,7 +140,7 @@ activeUsers = this.usersStore.users().filter(u => u.active);
 - Trùng lặp logic
 - Tính lại mỗi lần render
 
-### ✅ ĐÚNG — State dẫn xuất tập trung
+### ✅ ĐÚNG — Trạng thái dẫn xuất tập trung
 
 ```ts
 readonly activeUsers = computed(() =>
@@ -147,27 +148,27 @@ readonly activeUsers = computed(() =>
 );
 ```
 
-#### Lợi ích của ĐÚNG
+#### Lợi ích của cách ĐÚNG
 
-- Memo hóa
+- Được ghi nhớ (memoized)
 - Logic nghiệp vụ tập trung
 
 ---
 
-### 2.4 Cách ly side-effect (BẮT BUỘC)
+### 2.4 Cô lập side-effect (BẮT BUỘC)
 
-**Mục tiêu**\
-Cách ly chặt chẽ mọi side-effect (HTTP, timer, API trình duyệt, logging) khỏi logic state để đảm bảo **state dự đoán được, dễ test và an toàn SSR**.
+**Mục tiêu**  
+Cô lập chặt chẽ mọi side-effect (HTTP, timer, API trình duyệt, logging) khỏi logic trạng thái để đảm bảo **trạng thái dự đoán được, dễ kiểm thử và an toàn SSR**.
 
 ---
 
 ### Trách nhiệm từng tầng (BẮT BUỘC)
 
-| Tầng | File | Trách nhiệm | Được dùng HttpClient | Sở hữu Signals |
-|------|------|-------------|----------------------|----------------|
-| API | `users.api.ts` | Chỉ gọi HTTP mức thấp | ✅ CÓ | ❌ KHÔNG |
-| Store | `users.store.ts` | State + computed + mutation đồng bộ thuần | ❌ KHÔNG | ✅ CÓ |
-| Facade | `users.facade.ts` | Điều phối side-effect và cập nhật state | ✅ CÓ | ❌ KHÔNG |
+| Tầng   | File               | Trách nhiệm                                           | Được dùng HttpClient | Sở hữu Signals |
+| ------ | ------------------ | ----------------------------------------------------- | -------------------- | -------------- |
+| API    | `users.api.ts`     | Chỉ gọi HTTP mức thấp                                 | ✅ CÓ                | ❌ KHÔNG       |
+| Store  | `users.store.ts`   | Trạng thái + computed + mutation đồng bộ thuần túy    | ❌ KHÔNG             | ✅ CÓ          |
+| Facade | `users.facade.ts`  | Điều phối side-effect và cập nhật trạng thái           | ✅ CÓ                | ❌ KHÔNG       |
 
 ---
 
@@ -190,12 +191,12 @@ Cách ly chặt chẽ mọi side-effect (HTTP, timer, API trình duyệt, loggin
   - Chứa `subscribe()`
 
 - API **KHÔNG ĐƯỢC**:
-  - Giữ state (Signals, Subjects)
+  - Giữ trạng thái (Signals, Subjects)
   - Chứa logic nghiệp vụ
 
 - Facade **KHÔNG ĐƯỢC**:
   - Khai báo Signals
-  - Expose state có thể thay đổi
+  - Expose trạng thái có thể thay đổi
 
 ---
 
@@ -221,7 +222,7 @@ export class UsersService {
 
 ---
 
-### ✅ ĐÚNG — Phân tách rõ ràng
+### ✅ ĐÚNG — Tách biệt rõ ràng
 
 ```ts
 // users.api.ts
@@ -282,17 +283,17 @@ export class UsersFacade {
 
 ---
 
-**Lợi ích của ĐÚNG**
+**Lợi ích của cách ĐÚNG**
 
 - Một trách nhiệm mỗi file
-- Store thuần và đồng bộ
+- Store thuần túy và đồng bộ
 - Facade kiểm soát toàn bộ side-effect
 - Tầng API dễ mock
-- An toàn SSR và mở rộng được cho doanh nghiệp
+- An toàn SSR và mở rộng cho doanh nghiệp
 
 ---
 
-**Quy tắc (Chuẩn mực):** Side-effect **BẮT BUỘC** được cách ly bằng `effect()` hoặc phương thức service rõ ràng.
+**Quy tắc (Chuẩn mực):** Side-effect **BẮT BUỘC** được cô lập: dùng **phương thức Facade** cho async mệnh lệnh (load, save, submit); dùng `effect()` chỉ cho side-effect phản ứng (ví dụ logging, analytics khi trạng thái đổi), và **chỉ trong Facade hoặc component**, không bao giờ trong Store.
 
 ### ❌ SAI — Side-effect trong component
 
@@ -304,23 +305,27 @@ save() {
 
 #### Vì sao SAI
 
-- Không test được
-- Hành vi bất đồng bộ ẩn
+- Không kiểm thử được
+- Hành vi async ẩn
 
-### ✅ ĐÚNG — Side-effect dựa trên effect
+### ✅ ĐÚNG — Side-effect trong Facade (mệnh lệnh) hoặc effect (phản ứng)
 
 ```ts
+// Facade: async mệnh lệnh (mẫu chính)
+load(): void {
+  this.api.load().subscribe(users => this.store.setUsers(users));
+}
+
+// Component/Facade: side-effect phản ứng chỉ khi cần (ví dụ logging)
 effect(() => {
-  if (this._loading()) {
-    console.log('Loading users');
-  }
+  if (this.store.loading()) console.log('Loading users');
 });
 ```
 
-#### Lợi ích của ĐÚNG
+#### Lợi ích của cách ĐÚNG
 
 - Nhận biết vòng đời
-- Có thể test
+- Kiểm thử được
 - Dự đoán được
 
 ---
@@ -340,7 +345,7 @@ users/
 #### Vì sao SAI
 
 - Làm mờ trách nhiệm UI vs state
-- Khó áp dụng ranh giới
+- Khó ép ranh giới
 
 ### ✅ ĐÚNG — Tầng data-access rõ ràng
 
@@ -351,23 +356,24 @@ users/
   data-access/
     users.store.ts
     users.api.ts
+    users.facade.ts
 ```
 
-#### Lợi ích của ĐÚNG
+#### Lợi ích của cách ĐÚNG
 
-- Quyền sở hữu state rõ
-- Ranh giới có thể áp dụng
-- Mở rộng tốt cho nhiều team
-
----
-
-### 2.6 Mẫu bất đồng bộ & HTTP (Signals + RxJS)
-
-**Quy tắc (Chuẩn mực):** RxJS **CHỈ** dùng cho I/O. **Mọi subscription và luồng bất đồng bộ BẮT BUỘC nằm ở tầng Facade.** Store **BẮT BUỘC đồng bộ và không có side-effect**.
+- Quyền sở hữu trạng thái rõ
+- Ranh giới có thể ép
+- Mở rộng cho nhiều team
 
 ---
 
-### ❌ SAI — Logic bất đồng bộ trong component
+### 2.6 Mẫu Async & HTTP (Signals + RxJS)
+
+**Quy tắc (Chuẩn mực):** RxJS **CHỈ** dùng cho I/O. **Mọi subscription và luồng async BẮT BUỘC nằm ở tầng Facade.** Store **BẮT BUỘC đồng bộ và không có side-effect**.
+
+---
+
+### ❌ SAI — Logic async trong component
 
 ```ts
 ngOnInit() {
@@ -377,13 +383,13 @@ ngOnInit() {
 
 **Vì sao SAI**
 
-- Logic bất đồng bộ ẩn trong UI
+- Logic async ẩn trong UI
 - Không tái sử dụng được
-- Khó test
+- Khó kiểm thử
 
 ---
 
-### ❌ SAI — Logic bất đồng bộ trong Store
+### ❌ SAI — Logic async trong Store
 
 ```ts
 @Injectable({ providedIn: 'root' })
@@ -399,12 +405,12 @@ export class UsersStore {
 **Vì sao SAI**
 
 - Store sở hữu side-effect
-- Vi phạm quy tắc cách ly (2.4)
+- Vi phạm quy tắc cô lập (2.4)
 - Không an toàn SSR
 
 ---
 
-### ✅ ĐÚNG — Bất đồng bộ ở Facade, state ở Store
+### ✅ ĐÚNG — Async trong Facade, state trong Store
 
 ```ts
 @Injectable({ providedIn: 'root' })
@@ -429,22 +435,22 @@ export class UsersStore {
 }
 ```
 
-**Lợi ích của ĐÚNG**
+**Lợi ích của cách ĐÚNG**
 
-- Một ranh giới bất đồng bộ
-- Store thuần và đồng bộ
-- Khớp với Cách ly Side-effect (2.4)
-- An toàn SSR và có thể test
-
----
-
-### 2.7 Mẫu state lỗi & loading (BẮT BUỘC)
-
-**Quy tắc (Chuẩn mực):** State loading và lỗi **BẮT BUỘC** lưu dưới dạng Signals rõ ràng trong Store và **CHỈ được thay đổi bởi Facade**.
+- Một ranh giới async
+- Store thuần túy và đồng bộ
+- Khớp với Cô lập Side-effect (2.4)
+- An toàn SSR và kiểm thử được
 
 ---
 
-### ❌ SAI — State bất đồng bộ ngầm định
+### 2.7 Mẫu trạng thái Lỗi & Loading (BẮT BUỘC)
+
+**Quy tắc (Chuẩn mực):** Trạng thái loading và lỗi **BẮT BUỘC** lưu dưới dạng Signals rõ ràng trong Store và **CHỈ được thay đổi bởi Facade**.
+
+---
+
+### ❌ SAI — Trạng thái async ngầm định
 
 ```ts
 this.http.get('/api/users').subscribe(users => this._users.set(users));
@@ -458,7 +464,7 @@ this.http.get('/api/users').subscribe(users => this._users.set(users));
 
 ---
 
-### ❌ SAI — Store đổi loading trong lúc làm việc bất đồng bộ
+### ❌ SAI — Store thay đổi loading trong công việc async
 
 ```ts
 load(): void {
@@ -469,7 +475,7 @@ load(): void {
 
 **Vì sao SAI**
 
-- Store sở hữu vòng đời bất đồng bộ
+- Store sở hữu vòng đời async
 - Vi phạm trách nhiệm Facade
 
 ---
@@ -511,20 +517,20 @@ export class UsersStore {
 }
 ```
 
-**Lợi ích của ĐÚNG**
+**Lợi ích của cách ĐÚNG**
 
 - Trạng thái UI xác định
-- Quyền sở hữu rõ ràng vòng đời bất đồng bộ
+- Quyền sở hữu rõ vòng đời async
 - Nhất quán với Mục 2.4 và 2.6
-- Dễ test và lý giải
+- Dễ kiểm thử và lý luận
 
 ---
 
-### 2.8 Chiến lược test cho Signals Store (BẮT BUỘC)
+### 2.8 Chiến lược kiểm thử cho Signals Store (BẮT BUỘC)
 
-**Quy tắc (Chuẩn mực):** Signals Store **BẮT BUỘC** được unit test trực tiếp, không dùng TestBed.
+**Quy tắc (Chuẩn mực):** Signals Store **BẮT BUỘC** được unit test trực tiếp không dùng TestBed.
 
-❌ SAI — Test qua component
+❌ SAI — Kiểm thử qua component
 
 ```ts
 render(UsersComponent);
@@ -535,28 +541,28 @@ render(UsersComponent);
 - Chậm
 - Test UI thay vì hành vi
 
-✅ ĐÚNG — Test store trực tiếp
+✅ ĐÚNG — Kiểm thử store trực tiếp
 
 ```ts
-it('adds user', () => {
-  const store = new UsersStore(mockApi);
-  store.addUser({ id: 1, name: 'Alice' });
+it('cập nhật users khi setUsers được gọi', () => {
+  const store = new UsersStore();
+  store.setUsers([{ id: 1, name: 'Alice' }]);
   expect(store.users()).toHaveLength(1);
 });
 ```
 
-**Lợi ích của ĐÚNG**
+**Lợi ích của cách ĐÚNG**
 
 - Test nhanh
-- Assertion xác định
+- Assert xác định
 - Không phụ thuộc TestBed của Angular
 
 ---
 
 ### 2.9 Quy tắc SSR + Signals (Angular 21.x) (BẮT BUỘC)
 
-**Mục tiêu**\
-Đảm bảo Signals **hoạt động an toàn và dự đoán được trong SSR và hydration**, tránh lệch DOM và lỗi phụ thuộc môi trường.
+**Mục tiêu**  
+Đảm bảo Signals hoạt động **an toàn và dự đoán được trong SSR và hydration**, tránh lệch DOM và lỗi phụ thuộc môi trường.
 
 ---
 
@@ -565,7 +571,7 @@ it('adds user', () => {
 - `effect()` **KHÔNG ĐƯỢC**:
   - Gọi API HTTP trong SSR
   - Truy cập `window`, `document`, `localStorage`
-  - Thực hiện mutation state bất đồng bộ trong SSR
+  - Thực hiện mutation trạng thái bất đồng bộ trong SSR
 
 - Store **KHÔNG ĐƯỢC**:
   - Tải dữ liệu bất đồng bộ
@@ -575,12 +581,12 @@ it('adds user', () => {
 
 #### ✅ QUY TẮC BẮT BUỘC
 
-- Việc tải dữ liệu **CHỈ ĐƯỢC** chạy khi:
+- Tải dữ liệu **CHỈ ĐƯỢC** chạy khi:
   - `isPlatformBrowser()` === `true`
 
-- Trong giai đoạn SSR:
-  - Signals có thể **chỉ đọc**
-  - **KHÔNG cho phép** mutation state
+- Trong khi thực thi SSR:
+  - **Không** mutate state từ callback async hoặc `effect()` (sẽ chạy trên Node và gây không xác định).
+  - Trạng thái ban đầu từ Route `resolve()` hoặc `TransferState` (thiết lập trong SSR) **được phép**; tiêu thụ sau khi hydration.
 
 ---
 
@@ -600,7 +606,10 @@ constructor() {
 #### ĐÚNG (Mẫu an toàn SSR)
 
 ```ts
-constructor() {
+constructor(
+  private readonly platformId: Object,
+  private readonly facade: UsersFacade
+) {
   if (isPlatformBrowser(this.platformId)) {
     effect(() => {
       this.facade.loadData();
@@ -618,11 +627,12 @@ constructor() {
   - `TransferState`
 
 - Signals **CHỈ ĐƯỢC** tiêu thụ dữ liệu đã được hydrate
+
 - Signals **KHÔNG ĐƯỢC** khởi tạo fetch dữ liệu phía SSR
 
 ---
 
-❌ SAI — Công việc bất đồng bộ trong signal
+❌ SAI — Công việc async trong signal
 
 ```ts
 users = signal(this.http.get('/api/users'));
@@ -630,7 +640,7 @@ users = signal(this.http.get('/api/users'));
 
 **Vì sao SAI**
 
-- Phá tính xác định của SSR
+- Phá tính xác định SSR
 - Gây lệch hydration
 
 ✅ ĐÚNG — Mẫu an toàn SSR
@@ -643,7 +653,7 @@ loadOnClient(): void {
 }
 ```
 
-**Lợi ích của ĐÚNG**
+**Lợi ích của cách ĐÚNG**
 
 - SSR dự đoán được
 - Hydration an toàn
@@ -674,7 +684,7 @@ loadOnClient(): void {
 @Component({ changeDetection: ChangeDetectionStrategy.OnPush })
 ```
 
-#### Lợi ích của ĐÚNG
+#### Lợi ích của cách ĐÚNG
 
 - Hiệu năng tốt hơn
 - Luồng dữ liệu rõ ràng
@@ -683,7 +693,7 @@ loadOnClient(): void {
 
 ### 3.2 Inputs & Outputs
 
-**Quy tắc (Chuẩn mực):** Component **NÊN** “dumb” mặc định và **KHÔNG ĐƯỢC** chứa logic nghiệp vụ.
+**Quy tắc (Chuẩn mực):** Component **NÊN** "dumb" mặc định và **KHÔNG ĐƯỢC** chứa logic nghiệp vụ.
 
 ### ❌ SAI
 
@@ -703,16 +713,18 @@ this.api.save(user);
 @Output() save = new EventEmitter<User>();
 ```
 
-#### Lợi ích của ĐÚNG
+#### Lợi ích của cách ĐÚNG
 
 - Trách nhiệm rõ
-- Dễ test
+- Dễ kiểm thử
 
 ---
 
 ## 4. Templates
 
-### 4.1 Async Pipe
+### 4.1 Dữ liệu trong template (Signals vs Observable)
+
+**Quy tắc (Chuẩn mực):** Ưu tiên **Signals** cho dữ liệu template: component expose `readonly users = this.facade.users` và template dùng `users()`. Chỉ dùng **async pipe** khi nguồn dữ liệu là Observable (một subscription, không logic trong template).
 
 ### ❌ SAI
 
@@ -725,16 +737,25 @@ this.api.save(user);
 - Nhiều subscription
 - Logic template không rõ
 
-### ✅ ĐÚNG
+### ✅ ĐÚNG — Với Signals (ưu tiên)
+
+```html
+@for (u of users(); track u.id) { {{ u.name }} }
+```
+
+### ✅ ĐÚNG — Với Observable (khi không dùng Signals cho stream này)
 
 ```html
 <ng-container *ngIf="users$ | async as users">
+  <!-- dùng users -->
+</ng-container>
 ```
 
-#### Lợi ích của ĐÚNG
+#### Lợi ích của cách ĐÚNG
 
-- Một subscription
+- Một subscription khi dùng Observables
 - Template dễ đọc
+- Với Signals: không cần async pipe; đọc signal trong template (ví dụ `users()`)
 
 ---
 
@@ -742,23 +763,32 @@ this.api.save(user);
 
 ### 5.1 trackBy
 
+**Quy tắc (Chuẩn mực):** Mọi `*ngFor` (hoặc `@for`) **BẮT BUỘC** dùng hàm `trackBy` (hoặc biểu thức `track`) theo định danh ổn định (ví dụ `id`).
+
 ### ❌ SAI
 
 ```html
-<li *ngFor="let u of users">{{u.name}}</li>
+<li *ngFor="let u of users">{{ u.name }}</li>
 ```
 
 #### Vì sao SAI
 
-- Render lại toàn bộ DOM khi thay đổi
+- Re-render toàn bộ DOM khi thay đổi
 
 ### ✅ ĐÚNG
 
 ```html
-<li *ngFor="let u of users; trackBy: trackById">{{u.name}}</li>
+<li *ngFor="let u of users(); trackBy: trackById">{{ u.name }}</li>
 ```
 
-#### Lợi ích của ĐÚNG
+```ts
+// Trong component (khi dùng hàm trackBy)
+readonly trackById = (index: number, item: { id: number }) => item.id;
+```
+
+Với control flow Angular 17+: `@for (u of users(); track u.id) { ... }`
+
+#### Lợi ích của cách ĐÚNG
 
 - Cập nhật DOM hiệu quả
 
@@ -782,18 +812,18 @@ this.api.save(user);
 <div>{{ text }}</div>
 ```
 
-#### Lợi ích của ĐÚNG
+#### Lợi ích của cách ĐÚNG
 
 - An toàn mặc định
 
 ---
 
-## 7. Testing
+## 7. Kiểm thử
 
 ### ❌ SAI
 
 ```ts
-test('component saves', () => {});
+test('component lưu', () => {});
 ```
 
 #### Vì sao SAI
@@ -803,21 +833,21 @@ test('component saves', () => {});
 ### ✅ ĐÚNG
 
 ```ts
-test('facade dispatches save action', () => {});
+test('facade gửi action lưu', () => {});
 ```
 
-#### Lợi ích của ĐÚNG
+#### Lợi ích của cách ĐÚNG
 
 - Test ổn định, nhanh
 
 ---
 
-## 8. Truy cập (Accessibility)
+## 8. Khả năng truy cập (Accessibility)
 
 ### ❌ SAI
 
 ```html
-<div (click)="save()">Save</div>
+<div (click)="save()">Lưu</div>
 ```
 
 #### Vì sao SAI
@@ -827,10 +857,10 @@ test('facade dispatches save action', () => {});
 ### ✅ ĐÚNG
 
 ```html
-<button (click)="save()">Save</button>
+<button (click)="save()">Lưu</button>
 ```
 
-#### Lợi ích của ĐÚNG
+#### Lợi ích của cách ĐÚNG
 
 - Truy cập được mặc định
 
@@ -841,12 +871,12 @@ test('facade dispatches save action', () => {});
 ### ❌ SAI
 
 ```html
-<h1>Hello</h1>
+<h1>Xin chào</h1>
 ```
 
 #### Vì sao SAI
 
-- Chuỗi hardcode
+- Chuỗi cứng
 
 ### ✅ ĐÚNG
 
@@ -854,13 +884,13 @@ test('facade dispatches save action', () => {});
 <h1>{{ 'HELLO' | translate }}</h1>
 ```
 
-#### Lợi ích của ĐÚNG
+#### Lợi ích của cách ĐÚNG
 
 - Dễ bản địa hóa
 
 ---
 
-## 10. Linting & Formatting
+## 10. Linting & Định dạng
 
 ### ❌ SAI
 
@@ -880,9 +910,9 @@ if (x === y) {
 }
 ```
 
-#### Lợi ích của ĐÚNG
+#### Lợi ích của cách ĐÚNG
 
-- Dễ đọc và có thể áp dụng bằng tool
+- Dễ đọc và có thể ép tuân thủ
 
 ---
 
@@ -900,7 +930,7 @@ if (x === y) {
 
 - ESLint + Prettier + Tests trong pipeline
 
-#### Lợi ích của ĐÚNG
+#### Lợi ích của cách ĐÚNG
 
 - Cổng chất lượng tự động
 
@@ -916,15 +946,15 @@ if (x === y) {
 
 #### Vì sao SAI
 
-- Không ghi rõ ý định
+- Không ghi lại ý định
 
 ### ✅ ĐÚNG
 
 ```ts
-/** Loads users from API */
+/** Tải users từ API */
 ```
 
-#### Lợi ích của ĐÚNG
+#### Lợi ích của cách ĐÚNG
 
 - Dễ onboard
 
@@ -934,7 +964,7 @@ if (x === y) {
 
 ### ❌ SAI
 
-- Nâng phiên bản ngẫu nhiên
+- Nâng cấp phiên bản ngẫu nhiên
 
 #### Vì sao SAI
 
@@ -944,7 +974,7 @@ if (x === y) {
 
 - Nâng cấp minor Angular 21.x theo lịch
 
-#### Lợi ích của ĐÚNG
+#### Lợi ích của cách ĐÚNG
 
 - Bảo trì dự đoán được
 
@@ -954,7 +984,7 @@ if (x === y) {
 
 ### ❌ SAI
 
-- Bỏ qua các phiên bản major
+- Bỏ qua phiên bản major
 
 #### Vì sao SAI
 
@@ -962,9 +992,9 @@ if (x === y) {
 
 ### ✅ ĐÚNG
 
-- Làm theo Angular update guide từng bản phát hành
+- Làm theo hướng dẫn cập nhật Angular theo từng bản phát hành
 
-#### Lợi ích của ĐÚNG
+#### Lợi ích của cách ĐÚNG
 
 - Nâng cấp an toàn, từng bước
 
@@ -982,9 +1012,9 @@ if (x === y) {
 
 ### ✅ ĐÚNG
 
-- Ban kiến trúc trung tâm + chuẩn chung
+- Ban kiến trúc trung tâm + tiêu chuẩn
 
-#### Lợi ích của ĐÚNG
+#### Lợi ích của cách ĐÚNG
 
 - Nhất quán lâu dài
 
@@ -996,7 +1026,7 @@ if (x === y) {
 
 Mỗi quy tắc trên **BẮT BUỘC** có thể thực thi bằng công cụ. Chỉ thực thi thủ công là không chấp nhận trong dự án Angular 21.x doanh nghiệp.
 
-### Công cụ bắt buộc
+### Công cụ yêu cầu
 
 - `@angular-eslint/*`
 - `eslint-config-prettier`
@@ -1005,44 +1035,44 @@ Mỗi quy tắc trên **BẮT BUỘC** có thể thực thi bằng công cụ. C
 
 ### Ánh xạ quy tắc cốt lõi
 
-| Khu vực | ESLint / Công cụ | Mục đích |
-|---------|------------------|----------|
-| Cấu trúc tính năng | Nx / custom lint | Ngăn import chéo tính năng |
-| OnPush mặc định | angular-eslint/prefer-on-push-component-change-detection | Ép hiệu năng |
-| Async pipe | angular-eslint/template/no-call-expression | Tránh logic trong template |
-| trackBy | angular-eslint/template/use-track-by-function | Tránh re-render DOM |
-| Không side-effect trong component | custom rule / review gate | Ép NgRx effects |
-| Dùng Signals | custom architecture rule | Ngăn lạm dụng async |
+| Vùng                    | ESLint / Công cụ                                          | Mục đích                                                                 |
+| ----------------------- | --------------------------------------------------------- | ------------------------------------------------------------------------ |
+| Cấu trúc tính năng      | Nx / custom lint                                          | Ngăn import chéo tính năng                                               |
+| OnPush mặc định         | angular-eslint/prefer-on-push-component-change-detection  | Ép hiệu năng                                                             |
+| Async pipe              | angular-eslint/template/no-call-expression                | Tránh logic trong template                                               |
+| trackBy                 | angular-eslint/template/use-track-by-function             | Tránh re-render DOM                                                       |
+| Không side-effect trong component | Quy tắc tùy chỉnh / cổng review                          | Ép side-effect chỉ trong Facade (không subscribe trong component/store)  |
+| Dùng Signals            | Quy tắc kiến trúc tùy chỉnh                               | Ngăn async trong Store; RxJS chỉ trong Facade cho I/O                     |
 
-**Quy tắc (Chuẩn mực):** PR **BẮT BUỘC BỊ FAIL** nếu ESLint fail.
+**Quy tắc (Chuẩn mực):** PR **BẮT BUỘC BỊ TỪ CHỐI** nếu ESLint fail.
 
 ---
 
 ## 17. Checklist hiệu năng Angular 21.x
 
-Checklist này **BẮT BUỘC được kiểm tra trước khi release production**.
+Checklist này **BẮT BUỘC được xác thực trước khi phát hành production**.
 
 ### ❌ SAI
 
 - Change detection mặc định mọi nơi
-- Dùng Signals cho dữ liệu async/server
+- Signals dùng cho dữ liệu async/server
 - Template lớn chứa logic
 
 #### Vì sao SAI
 
 - Re-render không cần thiết
-- Vấn đề hiệu năng khó debug
+- Lỗi hiệu năng khó gỡ
 - Hiệu năng mobile kém
 
 ### ✅ ĐÚNG
 
 - `OnPush` trên mọi component mặc định
-- Signals chỉ cho state UI cục bộ
-- Async pipe + facades
-- `trackBy` trên mọi `*ngFor`
+- **Trạng thái domain** trong Store (Signals); **component** chỉ dùng Signals cho trạng thái UI cục bộ hoặc đọc từ Store/Facade
+- Async và `subscribe()` chỉ trong Facade; async pipe trong template khi dùng Observables
+- `trackBy` (hoặc `track`) trên mọi `*ngFor` / `@for`
 - Route tính năng lazy-loaded
 
-#### Lợi ích của ĐÚNG
+#### Lợi ích của cách ĐÚNG
 
 - Render dự đoán được
 - Core Web Vitals tốt hơn
@@ -1050,18 +1080,18 @@ Checklist này **BẮT BUỘC được kiểm tra trước khi release productio
 
 ### Quy tắc hiệu năng bắt buộc
 
-- ❗ Không dùng `ChangeDetectionStrategy.Default` nếu không có lý do
-- ❗ Không đưa logic async vào Signals
+- ❗ Không `ChangeDetectionStrategy.Default` nếu không có lý do
+- ❗ Không logic async trong Signals
 - ❗ Không `subscribe()` trong component
 - ❗ Không logic trong template ngoài binding
 
 ---
 
-## 18. Chính sách dùng AI (Doanh nghiệp)
+## 18. Chính sách sử dụng AI (Doanh nghiệp)
 
-Có **ĐƯỢC** dùng công cụ AI, nhưng tuân theo quy tắc chặt chẽ.
+Công cụ AI **CÓ THỂ** được dùng, nhưng tuân theo quy tắc chặt chẽ.
 
-### Công cụ cho phép
+### Công cụ được phép
 
 - Cursor
 - GitHub Copilot
@@ -1069,7 +1099,7 @@ Có **ĐƯỢC** dùng công cụ AI, nhưng tuân theo quy tắc chặt chẽ.
 
 ### ❌ SAI
 
-- Dán code do AI tạo mà không kiểm tra
+- Dán mù quáng code do AI tạo
 - Dùng AI cho quyết định kiến trúc mà không review
 - Commit code AI mà không hiểu
 
@@ -1085,7 +1115,7 @@ Có **ĐƯỢC** dùng công cụ AI, nhưng tuân theo quy tắc chặt chẽ.
 - Mọi code do AI tạo được con người review
 - Quyết định kiến trúc được tech lead phê duyệt
 
-#### Lợi ích của ĐÚNG
+#### Lợi ích của cách ĐÚNG
 
 - Phát triển nhanh hơn
 - Mẫu nhất quán
@@ -1125,10 +1155,12 @@ if (user.role === 'ADMIN') {
 canActivate: [AdminGuard]
 ```
 
-#### Lợi ích của ĐÚNG
+#### Lợi ích của cách ĐÚNG
 
 - Thực thi ở tầng routing
 - Phòng thủ nhiều lớp
+
+**Lưu ý:** Route guard vẫn là phía client. Kiểm soát truy cập **BẮT BUỘC** cũng được thực thi ở backend (ví dụ Spring Security); guard bảo vệ UX và ẩn UI, không phải bảo mật.
 
 ---
 
@@ -1150,7 +1182,7 @@ canActivate: [AdminGuard]
 <div>{{ value }}</div>
 ```
 
-#### Lợi ích của ĐÚNG
+#### Lợi ích của cách ĐÚNG
 
 - Angular sanitize mặc định
 
@@ -1176,8 +1208,8 @@ bootstrapApplication(AppComponent, {
 #### Vì sao SAI
 
 - Không có kiểm soát bảo mật tập trung
-- CSP cho phép inline script và eval
-- XSS và tấn công supply-chain dễ xảy ra
+- CSP cho phép script inline và eval
+- Dễ bị XSS và tấn công supply-chain
 
 ✅ ĐÚNG — Cấu hình an toàn mặc định
 
@@ -1195,7 +1227,7 @@ bootstrapApplication(AppComponent, {
       content="default-src 'self'; script-src 'self'; object-src 'none'; base-uri 'none'">
 ```
 
-#### Lợi ích của ĐÚNG
+#### Lợi ích của cách ĐÚNG
 
 - Thực thi chính sách bảo mật tập trung
 - Giảm thiểu XSS ở trình duyệt
@@ -1203,9 +1235,9 @@ bootstrapApplication(AppComponent, {
 
 ---
 
-## 20. Quy tắc Nx / Ranh giới module (Bắt buộc)
+## 20. Nx / Quy tắc ranh giới module (Bắt buộc)
 
-Dự án Angular doanh nghiệp **BẮT BUỘC** thực thi ranh giới.
+Dự án Angular doanh nghiệp **BẮT BUỘC** ép ranh giới.
 
 ### ❌ SAI — Import chéo tính năng
 
@@ -1215,16 +1247,16 @@ import { UsersFacade } from '../users/data-access';
 
 #### Vì sao SAI
 
-- Ghép nối ẩn
-- Phá cách ly tính năng
+- Liên kết ẩn
+- Phá cô lập tính năng
 
-### ✅ ĐÚNG — Chỉ dùng public API
+### ✅ ĐÚNG — Chỉ public API
 
 ```ts
 import { UsersFacade } from '@app/users';
 ```
 
-#### Lợi ích của ĐÚNG
+#### Lợi ích của cách ĐÚNG
 
 - Đồ thị phụ thuộc rõ
 - Refactor an toàn

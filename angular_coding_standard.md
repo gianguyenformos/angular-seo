@@ -1,7 +1,8 @@
 # Angular Coding Standards (Angular 21.x)
 
-Scope: Frontend applications using **Angular 21.x**\
-Backend: REST / JSON (Spring Boot or equivalent)
+**Scope:** Frontend applications using **Angular 21.x**
+
+**Backend:** REST / JSON (Spring Boot or equivalent)
 
 ---
 
@@ -163,11 +164,11 @@ Strictly isolate all side-effects (HTTP, timers, browser APIs, logging) from sta
 
 ### Layer Responsibilities (MANDATORY)
 
-| Layer | File | Responsibility | Allowed to use HttpClient | Owns Signals |
-|------|------|---------------|----------------------------|--------------|
-| API | `users.api.ts` | Low-level HTTP calls only | ✅ YES | ❌ NO |
-| Store | `users.store.ts` | State + computed + pure sync mutations | ❌ NO | ✅ YES |
-| Facade | `users.facade.ts` | Orchestrates side-effects and state updates | ✅ YES | ❌ NO |
+| Layer  | File              | Responsibility                              | Allowed to use HttpClient | Owns Signals |
+| ------ | ----------------- | ------------------------------------------- | ------------------------- | ------------ |
+| API    | `users.api.ts`    | Low-level HTTP calls only                   | ✅ YES                     | ❌ NO         |
+| Store  | `users.store.ts`  | State + computed + pure sync mutations      | ❌ NO                      | ✅ YES        |
+| Facade | `users.facade.ts` | Orchestrates side-effects and state updates | ✅ YES                     | ❌ NO         |
 
 ---
 
@@ -184,16 +185,19 @@ Strictly isolate all side-effects (HTTP, timers, browser APIs, logging) from sta
 ### 🚫 STRICTLY FORBIDDEN
 
 - Store **MUST NOT**:
+
   - Call HTTP APIs
   - Inject `HttpClient`
   - Access browser-only APIs
   - Contain `subscribe()`
 
 - API **MUST NOT**:
+
   - Hold state (Signals, Subjects)
   - Contain business logic
 
 - Facade **MUST NOT**:
+
   - Declare Signals
   - Expose mutable state
 
@@ -292,7 +296,7 @@ export class UsersFacade {
 
 ---
 
-**Rule (Normative):** Side-effects **MUST** be isolated using `effect()` or explicit service methods.
+**Rule (Normative):** Side-effects **MUST** be isolated: use **Facade methods** for imperative async (load, save, submit); use `effect()` only for reactive side-effects (e.g. logging, analytics when state changes), and **only in Facade or component**, never in Store.
 
 ### ❌ BAD — Side-effects in component
 
@@ -307,13 +311,17 @@ save() {
 - Not testable
 - Hidden async behavior
 
-### ✅ GOOD — Effect-based side-effects
+### ✅ GOOD — Side-effects in Facade (imperative) or effect (reactive)
 
 ```ts
+// Facade: imperative async (primary pattern)
+load(): void {
+  this.api.load().subscribe(users => this.store.setUsers(users));
+}
+
+// Component/Facade: reactive side-effect only when needed (e.g. logging)
 effect(() => {
-  if (this._loading()) {
-    console.log('Loading users');
-  }
+  if (this.store.loading()) console.log('Loading users');
 });
 ```
 
@@ -351,6 +359,7 @@ users/
   data-access/
     users.store.ts
     users.api.ts
+    users.facade.ts
 ```
 
 #### Benefits of GOOD
@@ -538,9 +547,9 @@ render(UsersComponent);
 ✅ GOOD — Direct store testing
 
 ```ts
-it('adds user', () => {
-  const store = new UsersStore(mockApi);
-  store.addUser({ id: 1, name: 'Alice' });
+it('updates users when setUsers is called', () => {
+  const store = new UsersStore();
+  store.setUsers([{ id: 1, name: 'Alice' }]);
   expect(store.users()).toHaveLength(1);
 });
 ```
@@ -581,10 +590,10 @@ Ensure Signals behave **safely and predictably in SSR and hydration**, preventin
 
   - `isPlatformBrowser()` === `true`
 
-- During SSR phase:
+- During SSR execution:
 
-  - Signals may be **read-only**
-  - State mutation is **NOT allowed**
+  - Do **not** mutate state from async callbacks or `effect()` (would run in Node and cause non-determinism).
+  - Initial state from Route `resolve()` or `TransferState` (set during SSR) **is allowed**; consume it after hydration.
 
 ---
 
@@ -604,7 +613,10 @@ constructor() {
 #### GOOD (SSR-safe Pattern)
 
 ```ts
-constructor() {
+constructor(
+  private readonly platformId: Object,
+  private readonly facade: UsersFacade
+) {
   if (isPlatformBrowser(this.platformId)) {
     effect(() => {
       this.facade.loadData();
@@ -718,7 +730,9 @@ this.api.save(user);
 
 ## 4. Templates
 
-### 4.1 Async Pipe
+### 4.1 Data in Templates (Signals vs Observable)
+
+**Rule (Normative):** Prefer **Signals** for template data: component exposes `readonly users = this.facade.users` and template uses `users()`. Use **async pipe** only when the data source is an Observable (single subscription, no logic in template).
 
 ### ❌ BAD
 
@@ -731,16 +745,25 @@ this.api.save(user);
 - Multiple subscriptions
 - Unclear template logic
 
-### ✅ GOOD
+### ✅ GOOD — With Signals (preferred)
+
+```html
+@for (u of users(); track u.id) { {{ u.name }} }
+```
+
+### ✅ GOOD — With Observable (when not using Signals for this stream)
 
 ```html
 <ng-container *ngIf="users$ | async as users">
+  <!-- use users -->
+</ng-container>
 ```
 
 #### Benefits of GOOD
 
-- Single subscription
+- Single subscription when using Observables
 - Readable templates
+- With Signals: no async pipe needed; use signal reads in template (e.g. `users()`)
 
 ---
 
@@ -748,10 +771,12 @@ this.api.save(user);
 
 ### 5.1 trackBy
 
+**Rule (Normative):** Every `*ngFor` (or `@for`) **MUST** use a `trackBy` function (or `track` expression) keyed by stable identity (e.g. `id`).
+
 ### ❌ BAD
 
 ```html
-<li *ngFor="let u of users">{{u.name}}</li>
+<li *ngFor="let u of users">{{ u.name }}</li>
 ```
 
 #### Why BAD
@@ -761,8 +786,15 @@ this.api.save(user);
 ### ✅ GOOD
 
 ```html
-<li *ngFor="let u of users; trackBy: trackById">{{u.name}}</li>
+<li *ngFor="let u of users(); trackBy: trackById">{{ u.name }}</li>
 ```
+
+```ts
+// In component (when using trackBy function)
+readonly trackById = (index: number, item: { id: number }) => item.id;
+```
+
+With Angular 17+ control flow: `@for (u of users(); track u.id) { ... }`
 
 #### Benefits of GOOD
 
@@ -1011,14 +1043,14 @@ Each rule above **MUST** be enforceable via tooling. Manual enforcement alone is
 
 ### Core Rule Mapping
 
-| Area                          | ESLint / Tool                                            | Purpose                       |
-| ----------------------------- | -------------------------------------------------------- | ----------------------------- |
-| Feature structure             | Nx / custom lint                                         | Prevent cross-feature imports |
-| OnPush default                | angular-eslint/prefer-on-push-component-change-detection | Enforce performance           |
-| Async pipe                    | angular-eslint/template/no-call-expression               | Avoid logic in templates      |
-| trackBy                       | angular-eslint/template/use-track-by-function            | Prevent DOM re-render         |
-| No side-effects in components | custom rule / review gate                                | Enforce NgRx effects          |
-| Signals usage                 | custom architecture rule                                 | Prevent async misuse          |
+| Area                          | ESLint / Tool                                            | Purpose                                                                 |
+| ----------------------------- | -------------------------------------------------------- | ----------------------------------------------------------------------- |
+| Feature structure             | Nx / custom lint                                         | Prevent cross-feature imports                                           |
+| OnPush default                | angular-eslint/prefer-on-push-component-change-detection | Enforce performance                                                     |
+| Async pipe                    | angular-eslint/template/no-call-expression               | Avoid logic in templates                                                |
+| trackBy                       | angular-eslint/template/use-track-by-function            | Prevent DOM re-render                                                   |
+| No side-effects in components | custom rule / review gate                                | Enforce side-effects in Facade only (no subscribe in components/stores) |
+| Signals usage                 | custom architecture rule                                 | Prevent async in Store; RxJS only in Facade for I/O                     |
 
 **Rule (Normative):** A PR **MUST FAIL** if ESLint fails.
 
@@ -1043,9 +1075,9 @@ This checklist **MUST be validated before production release**.
 ### ✅ GOOD
 
 - `OnPush` on all components by default
-- Signals only for local UI state
-- Async pipe + facades
-- `trackBy` on all `*ngFor`
+- **Domain state** in Store (Signals); **components** use Signals only for local UI state or read from Store/Facade
+- Async and `subscribe()` only in Facade; async pipe in templates when using Observables
+- `trackBy` (or `track`) on all `*ngFor` / `@for`
 - Lazy-loaded feature routes
 
 #### Benefits of GOOD
@@ -1135,6 +1167,8 @@ canActivate: [AdminGuard]
 
 - Enforcement at routing level
 - Defense in depth
+
+**Note:** Route guards are still client-side. Access control **MUST** also be enforced on the backend (e.g. Spring Security); guards protect UX and hide UI, not security.
 
 ---
 
@@ -1254,6 +1288,4 @@ import { UsersFacade } from '@app/users';
   ]
 }
 ```
-
-
 
